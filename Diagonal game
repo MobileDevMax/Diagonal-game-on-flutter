@@ -1,0 +1,140 @@
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+void main() {
+  runApp(DiagonalGame());
+}
+
+class DiagonalGame extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Diagonal',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: SelectionPage(),
+    );
+  }
+}
+
+class SelectionPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Select field')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Select the size of the playing field:'),
+            SizedBox(height: 20), // Отступ
+            ElevatedButton(
+              child: Text('7 x 7', style: TextStyle(fontSize: 24)),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GamePage(size: 7)),
+              ),
+            ),
+            SizedBox(height: 10), 
+            ElevatedButton(
+              child: Text('6 x 6', style: TextStyle(fontSize: 24)),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GamePage(size: 6)),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              child: Text('5 x 5', style: TextStyle(fontSize: 24)),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GamePage(size: 5)),
+              ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              child: Text('4 x 4', style: TextStyle(fontSize: 24)),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GamePage(size: 4)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GamePage extends StatelessWidget {
+  final int size;
+  final List<String> vowels = ['A', 'E', 'I', 'O', 'U', 'Y'];
+  final List<List<TextEditingController>> controllers;
+
+  GamePage({required this.size})
+      : controllers = List.generate(size, (_) => List.generate(size, (_) => TextEditingController()));
+
+  @override
+  Widget build(BuildContext context) {
+    List<List<String>> grid = List.generate(size, (i) => List.filled(size, ''));
+    Random random = Random();
+
+    for (int i = 0; i < size; i++) {
+      grid[i][i] = vowels[random.nextInt(vowels.length)];
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Playing field $size x $size')),
+      body: SingleChildScrollView( 
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: size,
+                ),
+                itemBuilder: (context, index) {
+                  int row = index ~/ size;
+                  int col = index % size;
+                  return Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Center(
+                      child: (row == col) 
+                          ? Text(grid[row][col], style: TextStyle(fontSize: 120))
+                          : Container(
+                              width: 120, 
+                              child: TextField( 
+                                controller: controllers[row][col],
+                                decoration: InputDecoration(border: InputBorder.none),
+                                textAlign: TextAlign.center, 
+                                style: TextStyle(fontSize: 120),
+                              ),
+                            ),
+                    ),
+                  );
+                },
+                itemCount: size * size,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
